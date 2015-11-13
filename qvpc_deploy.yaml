@@ -1,0 +1,156 @@
+#
+# This is a hello world HOT template just defining a single compute
+# server.
+#
+heat_template_version: 2013-05-23
+
+description: Hot template that defines basic QvPC-DI VM setup including 2 CF and 4 SF
+
+parameters:
+  flavor:
+    type: string
+    description: Flavor for the server to be created
+    default: m1.large
+
+  image_cf:
+    type: string
+    description: Image ID or image name to use for the server
+    constraints:
+      - custom_constraint: glance.image
+  image_sf:
+    type: string
+    description: Image ID or image name to use for the server
+    constraints:
+      - custom_constraint: glance.image
+
+  network_di_mgmt:
+    type: string
+    description: Network ID or Network Name of net to use for CF management
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_di_internal:
+    type: string
+    description: Network ID or Network Name of net to use for QVPC-DI
+                 network
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service1:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service2:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service3:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service4:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+resources:
+  qvpc-di-01-cf:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image_cf }
+      flavor: { get_param: flavor }
+      networks: 
+        - network: {get_param: network_di_internal}
+        - network: {get_param: network_di_mgmt}
+      config_drive: True
+      personality: {"staros_param.cfg": CARDSLOT=1}
+      availability_zone: nova:os-esc-compute
+  qvpc-di-02-cf:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image_cf }
+      flavor: { get_param: flavor }
+      networks:
+        - network: {get_param: network_di_internal}
+        - network: {get_param: network_di_mgmt}
+      config_drive: True
+      personality: {"staros_param.cfg": CARDSLOT=2}
+      availability_zone: nova:os-esc-compute
+  qvpc-di-03-sf:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image_sf }
+      flavor: { get_param: flavor }
+      networks: 
+        - network: {get_param: network_di_internal}
+        - network: {get_param: network_service1}
+        - network: {get_param: network_service2}
+        - network: {get_param: network_service3}
+        - network: {get_param: network_service4}
+      config_drive: True
+      personality: {"staros_param.cfg": CARDSLOT=3}
+      availability_zone: nova:os-esc-compute
+  qvpc-di-04-sf:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image_sf }
+      flavor: { get_param: flavor }
+      networks: 
+        - network: {get_param: network_di_internal}
+        - network: {get_param: network_service1}
+        - network: {get_param: network_service2}
+        - network: {get_param: network_service3}
+        - network: {get_param: network_service4}
+      config_drive: True
+      personality: {"staros_param.cfg": CARDSLOT=4}
+      availability_zone: nova:os-esc-compute
+  qvpc-di-05-sf:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image_sf }
+      flavor: { get_param: flavor }
+      networks: 
+        - network: {get_param: network_di_internal}
+        - network: {get_param: network_service1}
+        - network: {get_param: network_service2}
+        - network: {get_param: network_service3}
+        - network: {get_param: network_service4}
+      config_drive: True
+      personality: {"staros_param.cfg": CARDSLOT=5}
+      availability_zone: nova:os-esc-compute
+  qvpc-di-06-sf:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image_sf }
+      flavor: { get_param: flavor }
+      networks: 
+        - network: {get_param: network_di_internal}
+        - network: {get_param: network_service1}
+        - network: {get_param: network_service2}
+        - network: {get_param: network_service3}
+        - network: {get_param: network_service4}
+      config_drive: True
+      personality: {"staros_param.cfg": CARDSLOT=6}
+      availability_zone: nova:os-esc-compute
+outputs:
+  server_networks:
+    description: The networks of the deployed server
+    value: { get_attr: [qvpc-di-01-cf, networks] }
+    value: { get_attr: [qvpc-di-02-cf, networks] }
+    value: { get_attr: [qvpc-di-03-sf, networks] }
+    value: { get_attr: [qvpc-di-04-sf, networks] }
+    value: { get_attr: [qvpc-di-05-sf, networks] }
+    value: { get_attr: [qvpc-di-06-sf, networks] }
