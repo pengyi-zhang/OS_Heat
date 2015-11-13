@@ -1,0 +1,106 @@
+### Heat Template ###
+description: Generated template
+heat_template_version: 2013-05-23
+parameters:
+resources:
+  network_0:
+    properties:
+      admin_state_up: true
+      name: di_internal
+      shared: false
+    type: OS::Neutron::Net
+  network_1:
+    properties:
+      admin_state_up: true
+      name: service1
+      shared: false
+    type: OS::Neutron::Net
+  network_2:
+    properties:
+      admin_state_up: true
+      name: service2
+      shared: false
+    type: OS::Neutron::Net
+  network_3:
+    properties:
+      admin_state_up: true
+      name: service3
+      shared: false
+    type: OS::Neutron::Net
+  network_4:
+    properties:
+      admin_state_up: true
+      name: service4
+      shared: false
+    type: OS::Neutron::Net
+  subnet_0:
+    properties:
+      allocation_pools:
+      - end: 172.10.180.254
+        start: 172.10.180.2
+      cidr: 172.10.180.0/24
+      dns_nameservers: []
+      enable_dhcp: true
+      host_routes: []
+      ip_version: 4
+      name: di_internal
+      network_id:
+        get_resource: network_0
+    type: OS::Neutron::Subnet 
+  subnet_1:
+    properties:
+      allocation_pools:
+      - end: 172.16.181.254
+        start: 172.16.181.2
+      cidr: 172.16.181.0/24
+      dns_nameservers: []
+      enable_dhcp: true
+      host_routes: []
+      ip_version: 4
+      name: service1
+      network_id:
+        get_resource: network_1
+    type: OS::Neutron::Subnet
+  subnet_2:
+    properties:
+      allocation_pools:
+      - end: 172.16.182.254
+        start: 172.16.182.2
+      cidr: 172.16.182.0/24
+      dns_nameservers: []
+      enable_dhcp: true
+      host_routes: []
+      ip_version: 4
+      name: service2
+      network_id:
+        get_resource: network_2
+    type: OS::Neutron::Subnet
+  subnet_3:
+    properties:
+      allocation_pools:
+      - end: 172.16.183.254
+        start: 172.16.183.2
+      cidr: 172.16.183.0/24
+      dns_nameservers: []
+      enable_dhcp: true
+      host_routes: []
+      ip_version: 4
+      name: service3
+      network_id:
+        get_resource: network_3
+    type: OS::Neutron::Subnet
+  subnet_4:
+    properties:
+      allocation_pools:
+      - end: 172.16.184.254
+        start: 172.16.184.2
+      cidr: 172.16.184.0/24
+      dns_nameservers: []
+      enable_dhcp: true
+      host_routes: []
+      ip_version: 4
+      name: service3
+      network_id:
+        get_resource: network_4
+    type: OS::Neutron::Subnet
+
