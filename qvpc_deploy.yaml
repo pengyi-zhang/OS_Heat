@@ -12,6 +12,11 @@ parameters:
     description: Flavor for the server to be created
     default: m1.large
 
+  availability_zone:
+    type: string
+    description: Availability_zone for the server to be created
+    default: nova
+
   image_cf:
     type: string
     description: Image ID or image name to use for the server
@@ -77,7 +82,7 @@ resources:
         - network: {get_param: network_di_mgmt}
       config_drive: True
       personality: {"staros_param.cfg": CARDSLOT=1}
-      availability_zone: nova:os-esc-compute
+      availability_zone: {get_param: availability_zone}
   qvpc-di-02-cf:
     type: OS::Nova::Server
     properties:
@@ -88,7 +93,7 @@ resources:
         - network: {get_param: network_di_mgmt}
       config_drive: True
       personality: {"staros_param.cfg": CARDSLOT=2}
-      availability_zone: nova:os-esc-compute
+      availability_zone: {get_param: availability_zone}
   qvpc-di-03-sf:
     type: OS::Nova::Server
     properties:
@@ -102,7 +107,7 @@ resources:
         - network: {get_param: network_service4}
       config_drive: True
       personality: {"staros_param.cfg": CARDSLOT=3}
-      availability_zone: nova:os-esc-compute
+      availability_zone: {get_param: availability_zone}
   qvpc-di-04-sf:
     type: OS::Nova::Server
     properties:
@@ -116,7 +121,7 @@ resources:
         - network: {get_param: network_service4}
       config_drive: True
       personality: {"staros_param.cfg": CARDSLOT=4}
-      availability_zone: nova:os-esc-compute
+      availability_zone: {get_param: availability_zone}
   qvpc-di-05-sf:
     type: OS::Nova::Server
     properties:
@@ -130,7 +135,7 @@ resources:
         - network: {get_param: network_service4}
       config_drive: True
       personality: {"staros_param.cfg": CARDSLOT=5}
-      availability_zone: nova:os-esc-compute
+      availability_zone: {get_param: availability_zone}
   qvpc-di-06-sf:
     type: OS::Nova::Server
     properties:
@@ -144,7 +149,7 @@ resources:
         - network: {get_param: network_service4}
       config_drive: True
       personality: {"staros_param.cfg": CARDSLOT=6}
-      availability_zone: nova:os-esc-compute
+      availability_zone: {get_param: availability_zone}
 outputs:
   server_networks:
     description: The networks of the deployed server

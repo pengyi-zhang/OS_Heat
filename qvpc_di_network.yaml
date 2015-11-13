@@ -36,9 +36,9 @@ resources:
   subnet_0:
     properties:
       allocation_pools:
-      - end: 172.10.180.254
-        start: 172.10.180.2
-      cidr: 172.10.180.0/24
+      - end: 172.10.0.254
+        start: 172.10.0.2
+      cidr: 172.10.0.0/18
       dns_nameservers: []
       enable_dhcp: true
       host_routes: []
