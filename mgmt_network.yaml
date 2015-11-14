@@ -1,0 +1,70 @@
+### Heat Template ###
+description: Generated template
+heat_template_version: 2013-05-23
+parameters:
+  router_0_external_network:
+    description: Router external network
+    type: string
+    constraints:
+      - custom_constraint: neutron.network
+resources:
+  network_0:
+    properties:
+      admin_state_up: true
+      name: cf-mgmt
+      shared: false
+    type: OS::Neutron::Net
+  network_1:
+    properties:
+      admin_state_up: true
+      name: core
+      shared: false
+    type: OS::Neutron::Net
+  subnet_0:
+    properties:
+      allocation_pools:
+      - end: 172.16.170.254
+        start: 172.16.170.2
+      cidr: 172.16.170.0/24
+      dns_nameservers: []
+      enable_dhcp: true
+      host_routes: []
+      ip_version: 4
+      name: cf-mgmt
+      network_id:
+        get_resource: network_0
+    type: OS::Neutron::Subnet 
+  subnet_1:
+    properties:
+      allocation_pools:
+      - end: 172.16.180.254
+        start: 172.16.180.2
+      cidr: 172.16.180.0/24
+      dns_nameservers: []
+      enable_dhcp: true
+      host_routes: []
+      ip_version: 4
+      name: core
+      network_id:
+        get_resource: network_1
+    type: OS::Neutron::Subnet
+  router_0:
+    properties:
+      admin_state_up: true
+      name: main
+    type: OS::Neutron::Router
+  router_0_gateway:
+    properties:
+      network_id:
+        get_param: router_0_external_network
+      router_id:
+        get_resource: router_0
+    type: OS::Neutron::RouterGateway
+  router_0_interface_0:
+    properties:
+      router_id:
+        get_resource: router_0
+      subnet_id:
+        get_resource: subnet_0
+    type: OS::Neutron::RouterInterface
+ 
