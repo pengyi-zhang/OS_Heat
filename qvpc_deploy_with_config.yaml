@@ -1,0 +1,203 @@
+#
+# This is a hello world HOT template just defining a single compute
+# server.
+#
+heat_template_version: 2013-05-23
+
+description: Hot template that defines basic QvPC-DI VM setup including 2 CF and 4 SF
+
+parameter_groups:
+- label: images
+  description: CF and SF image in qvpc-di
+  parameters:
+  - image_cf
+  - image_sf
+
+- label: networks
+  description: network configuration for DI
+  parameters:
+  - network_di_mgmt
+  - network_di_internal
+  - network_service1
+  - network_service2
+  - network_service3
+  - network_service4
+
+- label: other_params
+  description: other parameters
+  parameters:
+  - flavor
+  - availability_zone
+
+parameters:
+  flavor:
+    type: string
+    description: Flavor for the server to be created
+    default: m1.large
+
+  availability_zone:
+    type: string
+    description: Availability_zone for the server to be created
+    default: nova
+
+  image_cf:
+    type: string
+    label: CF image file in glance
+    description: Image ID or image name to use for the server
+    constraints:
+      - custom_constraint: glance.image
+  image_sf:
+    type: string
+    label: SF image file in glance
+    description: Image ID or image name to use for the server
+    constraints:
+      - custom_constraint: glance.image
+
+  network_di_mgmt:
+    type: string
+    description: Network ID or Network Name of net to use for CF management
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_di_internal:
+    type: string
+    description: Network ID or Network Name of net to use for QVPC-DI
+                 network
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service1:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service2:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service3:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service4:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  system_config:
+    type: string
+    description: Day 0 config
+    default: " " 
+  param_config:
+    type: string
+    description: Day 1 config
+    default: "CARDSLOT=$CARD_SLOT\nCARDTYPE=$CARD_TYPE\nUUID=\n"
+
+resources:
+  qvpc-di-01-cf:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image_cf }
+      flavor: { get_param: flavor }
+      networks: 
+        - network: {get_param: network_di_internal}
+        - network: {get_param: network_di_mgmt}
+      config_drive: True
+      personality: 
+        "staros_param.cfg":
+            str_replace:
+                template: |
+                    CARDSLOT=$CARD_NUMBER
+                    CARDTYPE=$CARD_TYPE
+                    UUID=$UUID
+                params:
+                    $CARD_NUMBER: 1
+                    $CARD_TYPE: CFC
+                    $UUID: 0
+        "staros_config.txt":
+            str_replace:
+                template: |
+                    config
+                        system hostname cf-$SLOT_CARD_NUMBER
+                        context local
+                            administrator admin password cisco123 ftp
+                                interface LOCAL1
+                                #exit
+                            ssh generate key
+                            server sshd
+                                subsystem sftp
+                            #exit
+                            server telnetd
+                            server ftpd
+                        #exit
+                        port ethernet 1/1
+                        bind interface LOCAL1 local
+                        no shutdown
+                        #exit
+                        snmp community public read-only
+                    end    
+                params:
+                    $SLOT_CARD_NUMBER: 1
+      availability_zone: {get_param: availability_zone}
+  qvpc-di-02-cf:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image_cf }
+      flavor: { get_param: flavor }
+      networks:
+        - network: {get_param: network_di_internal}
+        - network: {get_param: network_di_mgmt}
+      config_drive: True
+      personality: 
+        "staros_param.cfg":
+            str_replace:
+                template: |
+                    CARDSLOT=$CARD_NUMBER
+                    CARDTYPE=$CARD_TYPE
+                    UUID=$UUID
+                params:
+                    $CARD_NUMBER: 2
+                    $CARD_TYPE: CFC
+                    $UUID: 0
+        "staros_config.txt":
+            str_replace:
+                template: |
+                    config
+                        system hostname cf-$SLOT_CARD_NUMBER
+                        context local
+                            administrator admin password cisco123 ftp
+                                interface LOCAL1
+                                #exit
+                            ssh generate key
+                            server sshd
+                                subsystem sftp
+                            #exit
+                            server telnetd
+                            server ftpd
+                        #exit
+                        port ethernet 1/1
+                        bind interface LOCAL1 local
+                        no shutdown
+                        #exit
+                        snmp community public read-only
+                    end    
+                params:
+                    $SLOT_CARD_NUMBER: 2
+      availability_zone: {get_param: availability_zone}
+outputs:
+  server_networks:
+    description: The networks of the deployed server
+    value: { get_attr: [qvpc-di-01-cf, networks] }
+    value: { get_attr: [qvpc-di-02-cf, networks] }
