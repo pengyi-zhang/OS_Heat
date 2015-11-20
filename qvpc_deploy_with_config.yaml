@@ -106,14 +106,24 @@ parameters:
     default: "CARDSLOT=$CARD_SLOT\nCARDTYPE=$CARD_TYPE\nUUID=\n"
 
 resources:
+  #Resoure fpr CF-1
+  port_01_int:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_internal}
+  port_01_mgmt:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_mgmt}
+
   qvpc-di-01-cf:
     type: OS::Nova::Server
     properties:
       image: { get_param: image_cf }
       flavor: { get_param: flavor }
-      networks: 
-        - network: {get_param: network_di_internal}
-        - network: {get_param: network_di_mgmt}
+      networks:
+        - port: {get_resource: port_01_int}
+        - port: {get_resource: port_01_mgmt}
       config_drive: True
       personality: 
         "staros_param.cfg":
@@ -151,14 +161,25 @@ resources:
                 params:
                     $SLOT_CARD_NUMBER: 1
       availability_zone: {get_param: availability_zone}
+
+  #Resoure for CF-2
+  port_02_int:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_internal}
+  port_02_mgmt:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_mgmt}
+
   qvpc-di-02-cf:
     type: OS::Nova::Server
     properties:
       image: { get_param: image_cf }
       flavor: { get_param: flavor }
       networks:
-        - network: {get_param: network_di_internal}
-        - network: {get_param: network_di_mgmt}
+        - port: {get_resource: port_02_int}
+        - port: {get_resource: port_02_mgmt}
       config_drive: True
       personality: 
         "staros_param.cfg":
@@ -196,8 +217,227 @@ resources:
                 params:
                     $SLOT_CARD_NUMBER: 2
       availability_zone: {get_param: availability_zone}
+
+  #Resoure for SF-3
+  port_03_int:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_internal}
+  port_03_svc1:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service1}
+  port_03_svc2:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service2}
+  port_03_svc3:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service3}
+  port_03_svc4:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service4}
+
+  qvpc-di-03-sf:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image_sf }
+      flavor: { get_param: flavor }
+      networks:
+        - port: {get_resource: port_03_int}
+        - port: {get_resource: port_03_svc1}
+        - port: {get_resource: port_03_svc2}
+        - port: {get_resource: port_03_svc3}
+        - port: {get_resource: port_03_svc4}
+      config_drive: True
+      personality:
+        "staros_param.cfg":
+            str_replace:
+                template: |
+                    CARDSLOT=$CARD_NUMBER
+                    CARDTYPE=$CARD_TYPE
+                    UUID=$UUID
+                params:
+                    $CARD_NUMBER: 3
+                    $CARD_TYPE: SFC
+                    $UUID: 0
+      availability_zone: {get_param: availability_zone}
+
+ #Resoure for SF-4
+  port_04_int:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_internal}
+  port_04_svc1:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service1}
+  port_04_svc2:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service2}
+  port_04_svc3:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service3}
+  port_04_svc4:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service4}
+
+  qvpc-di-04-sf:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image_sf }
+      flavor: { get_param: flavor }
+      networks:
+        - port: {get_resource: port_04_int}
+        - port: {get_resource: port_04_svc1}
+        - port: {get_resource: port_04_svc2}
+        - port: {get_resource: port_04_svc3}
+        - port: {get_resource: port_04_svc4}
+      config_drive: True
+      personality:
+        "staros_param.cfg":
+            str_replace:
+                template: |
+                    CARDSLOT=$CARD_NUMBER
+                    CARDTYPE=$CARD_TYPE
+                    UUID=$UUID
+                params:
+                    $CARD_NUMBER: 4
+                    $CARD_TYPE: SFC
+                    $UUID: 0
+      availability_zone: {get_param: availability_zone}
+
+ #Resoure for SF-5
+  port_05_int:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_internal}
+  port_05_svc1:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service1}
+  port_05_svc2:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service2}
+  port_05_svc3:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service3}
+  port_05_svc4:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service4}
+
+  qvpc-di-05-sf:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image_sf }
+      flavor: { get_param: flavor }
+      networks:
+        - port: {get_resource: port_05_int}
+        - port: {get_resource: port_05_svc1}
+        - port: {get_resource: port_05_svc2}
+        - port: {get_resource: port_05_svc3}
+        - port: {get_resource: port_05_svc4}
+      config_drive: True
+      personality:
+        "staros_param.cfg":
+            str_replace:
+                template: |
+                    CARDSLOT=$CARD_NUMBER
+                    CARDTYPE=$CARD_TYPE
+                    UUID=$UUID
+                params:
+                    $CARD_NUMBER: 5
+                    $CARD_TYPE: SFC
+                    $UUID: 0
+      availability_zone: {get_param: availability_zone}
+
+  #Resoure for SF-6
+  port_06_int:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_internal}
+  port_06_svc1:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service1}
+  port_06_svc2:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service2}
+  port_06_svc3:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service3}
+  port_06_svc4:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service4}
+
+  qvpc-di-06-sf:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image_sf }
+      flavor: { get_param: flavor }
+      networks:
+        - port: {get_resource: port_06_int}
+        - port: {get_resource: port_06_svc1}
+        - port: {get_resource: port_06_svc2}
+        - port: {get_resource: port_06_svc3}
+        - port: {get_resource: port_06_svc4}
+      config_drive: True
+      personality:
+        "staros_param.cfg":
+            str_replace:
+                template: |
+                    CARDSLOT=$CARD_NUMBER
+                    CARDTYPE=$CARD_TYPE
+                    UUID=$UUID
+                params:
+                    $CARD_NUMBER: 6
+                    $CARD_TYPE: SFC
+                    $UUID: 0
+      availability_zone: {get_param: availability_zone}
+
 outputs:
-  server_networks:
-    description: The networks of the deployed server
+  CF1_networks:
+    description: The networks of the deployed CF-1
     value: { get_attr: [qvpc-di-01-cf, networks] }
+  CF2_networks_2:
+    description: The networks of the deployed CF-2
     value: { get_attr: [qvpc-di-02-cf, networks] }
+  port_1_int:
+    description: The port of the deployed server 1, di-internal
+    value: { get_attr: [port_01_int, mac_address] }
+  port_1_mgmt:
+    description: The port of the deployed server 2, di-internal
+    value: { get_attr: [port_01_mgmt, mac_address] }
+  port_2_int:
+    description: The port of the deployed server 2, cf-mgmt
+    value: { get_attr: [port_02_int, mac_address] }
+  port_2_mgmt:
+    description: The port of the deployed server 2, cf-mgmt
+    value: { get_attr: [port_02_mgmt, mac_address] }
+
+  port_3_int:
+    description: The port of the deployed server 3, di-internal
+    value: { get_attr: [port_03_int, mac_address] }
+  port_3_svc1:
+    description: The port of the deployed server 3, service1
+    value: { get_attr: [port_03_svc1, mac_address] }
+  port_3_svc2:
+    description: The port of the deployed server 3, service2
+    value: { get_attr: [port_03_svc2, mac_address] }
+  port_3_svc3:
+    description: The port of the deployed server 3, service3
+    value: { get_attr: [port_03_svc3, mac_address] }
+  port_3_svc4:
+    description: The port of the deployed server 3, service4
+    value: { get_attr: [port_03_svc4, mac_address] }
