@@ -23,6 +23,12 @@ parameter_groups:
   - network_service3
   - network_service4
 
+- label: DI configuration
+  description: DI config params
+  parameters:
+  - cf_vip_addr
+  - cf_vip_gateway
+
 - label: other_params
   description: other parameters
   parameters:
@@ -96,6 +102,17 @@ parameters:
     constraints:
       - custom_constraint: neutron.network
 
+  cf_vip_addr:
+    type: string
+    description: CF VIP Address
+    #constraints:
+    #  - custom_constraint: ip_addr
+  cf_vip_gateway:
+    type: string
+    description: CF VIP Gateway Address
+    #constraints:
+    #  - custom_constraint: ip_addr
+
   system_config:
     type: string
     description: Day 0 config
@@ -140,11 +157,15 @@ resources:
             str_replace:
                 template: |
                     config
+                        cli hidden
+                        tech-support test-commands password boxer
                         system hostname cf-$SLOT_CARD_NUMBER
                         context local
                             administrator admin password cisco123 ftp
                                 interface LOCAL1
-                                #exit
+                                    ip address $CF_VIP_ADDR 255.255.255.0
+                            #exit
+                            ip route 0.0.0.0 0.0.0.0 $CF_VIP_GATEWAY LOCAL1
                             ssh generate key
                             server sshd
                                 subsystem sftp
@@ -160,6 +181,8 @@ resources:
                     end    
                 params:
                     $SLOT_CARD_NUMBER: 1
+                    $CF_VIP_ADDR: {get_param: cf_vip_addr}
+                    $CF_VIP_GATEWAY: {get_param: cf_vip_gateway}
       availability_zone: {get_param: availability_zone}
 
   #Resoure for CF-2
@@ -196,11 +219,15 @@ resources:
             str_replace:
                 template: |
                     config
+                        cli hidden
+                        tech-support test-commands password boxer
                         system hostname cf-$SLOT_CARD_NUMBER
                         context local
                             administrator admin password cisco123 ftp
                                 interface LOCAL1
-                                #exit
+                                    ip address $CF_VIP_ADDR 255.255.255.0
+                            #exit
+                            ip route 0.0.0.0 0.0.0.0 $CF_VIP_GATEWAY LOCAL1
                             ssh generate key
                             server sshd
                                 subsystem sftp
@@ -216,6 +243,8 @@ resources:
                     end    
                 params:
                     $SLOT_CARD_NUMBER: 2
+                    $CF_VIP_ADDR: {get_param: cf_vip_addr}
+                    $CF_VIP_GATEWAY: {get_param: cf_vip_gateway}
       availability_zone: {get_param: availability_zone}
 
   #Resoure for SF-3
