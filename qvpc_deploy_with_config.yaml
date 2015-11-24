@@ -10,8 +10,8 @@ parameter_groups:
 - label: images
   description: CF and SF image in qvpc-di
   parameters:
-  - image_cf
-  - image_sf
+  - qvpc_image_cf
+  - qvpc_image_sf
 
 - label: networks
   description: network configuration for DI
@@ -26,8 +26,8 @@ parameter_groups:
 - label: DI configuration
   description: DI config params
   parameters:
-  - cf_vip_addr
-  - cf_vip_gateway
+  - qvpc_vip_addr
+  - qvpc_vip_gateway
 
 - label: other_params
   description: other parameters
@@ -46,13 +46,13 @@ parameters:
     description: Availability_zone for the server to be created
     default: nova
 
-  image_cf:
+  qvpc_image_cf:
     type: string
     label: CF image file in glance
     description: Image ID or image name to use for the server
     constraints:
       - custom_constraint: glance.image
-  image_sf:
+  qvpc_image_sf:
     type: string
     label: SF image file in glance
     description: Image ID or image name to use for the server
@@ -102,16 +102,25 @@ parameters:
     constraints:
       - custom_constraint: neutron.network
 
-  cf_vip_addr:
+  qvpc_vip_addr:
     type: string
     description: CF VIP Address
     #constraints:
     #  - custom_constraint: ip_addr
-  cf_vip_gateway:
+  qvpc_vip_gateway:
     type: string
     description: CF VIP Gateway Address
     #constraints:
     #  - custom_constraint: ip_addr
+
+  vnf_name:
+    type: string
+    description: Unique name for this VF instance
+    default: qvpc_di
+  vnf_id:
+    type: string
+    description: Unique ID for this VF instance
+    default: 0
 
   system_config:
     type: string
@@ -133,10 +142,15 @@ resources:
     properties:
         network: {get_param: network_di_mgmt}
 
-  qvpc-di-01-cf:
+  qvpc_cf_01:
     type: OS::Nova::Server
     properties:
-      image: { get_param: image_cf }
+      name:
+          str_replace:
+              template: ${VF_NAME}_cf_01
+              params:
+                ${VF_NAME}: {get_param: vnf_name}
+      image: { get_param: qvpc_image_cf }
       flavor: { get_param: flavor }
       networks:
         - port: {get_resource: qvpc_cf_01_port_int}
@@ -159,7 +173,7 @@ resources:
                     config
                         cli hidden
                         tech-support test-commands password boxer
-                        system hostname cf-$SLOT_CARD_NUMBER
+                        system hostname $VF_NAME-cf-$SLOT_CARD_NUMBER
                         context local
                             administrator admin password cisco123 ftp
                                 interface LOCAL1
@@ -180,9 +194,10 @@ resources:
                         snmp community public read-only
                     end    
                 params:
+                    $VF_NAME: {get_param: vnf_name}
                     $SLOT_CARD_NUMBER: 1
-                    $CF_VIP_ADDR: {get_param: cf_vip_addr}
-                    $CF_VIP_GATEWAY: {get_param: cf_vip_gateway}
+                    $CF_VIP_ADDR: {get_param: qvpc_vip_addr}
+                    $CF_VIP_GATEWAY: {get_param: qvpc_vip_gateway}
       availability_zone: {get_param: availability_zone}
 
   #Resoure for CF-2
@@ -195,10 +210,15 @@ resources:
     properties:
         network: {get_param: network_di_mgmt}
 
-  qvpc-di-02-cf:
+  qvpc_cf_02:
     type: OS::Nova::Server
     properties:
-      image: { get_param: image_cf }
+      name:
+          str_replace:
+              template: ${VF_NAME}_cf_02
+              params:
+                ${VF_NAME}: {get_param: vnf_name}
+      image: { get_param: qvpc_image_cf }
       flavor: { get_param: flavor }
       networks:
         - port: {get_resource: qvpc_cf_02_port_int}
@@ -221,7 +241,7 @@ resources:
                     config
                         cli hidden
                         tech-support test-commands password boxer
-                        system hostname cf-$SLOT_CARD_NUMBER
+                        system hostname $VF_NAME-cf-$SLOT_CARD_NUMBER
                         context local
                             administrator admin password cisco123 ftp
                                 interface LOCAL1
@@ -242,9 +262,10 @@ resources:
                         snmp community public read-only
                     end    
                 params:
+                    $VF_NAME: {get_param: vnf_name}
                     $SLOT_CARD_NUMBER: 2
-                    $CF_VIP_ADDR: {get_param: cf_vip_addr}
-                    $CF_VIP_GATEWAY: {get_param: cf_vip_gateway}
+                    $CF_VIP_ADDR: {get_param: qvpc_vip_addr}
+                    $CF_VIP_GATEWAY: {get_param: qvpc_vip_gateway}
       availability_zone: {get_param: availability_zone}
 
   #Resoure for SF-3
@@ -269,10 +290,15 @@ resources:
     properties:
         network: {get_param: network_service4}
 
-  qvpc-di-03-sf:
+  qvpc_sf_03:
     type: OS::Nova::Server
     properties:
-      image: { get_param: image_sf }
+      name:
+          str_replace:
+              template: ${VF_NAME}_sf_03
+              params:
+                ${VF_NAME}: {get_param: vnf_name}
+      image: { get_param: qvpc_image_sf }
       flavor: { get_param: flavor }
       networks:
         - port: {get_resource: qvpc_sf_03_port_int}
@@ -316,10 +342,15 @@ resources:
     properties:
         network: {get_param: network_service4}
 
-  qvpc-di-04-sf:
+  qvpc_sf_04:
     type: OS::Nova::Server
     properties:
-      image: { get_param: image_sf }
+      name:
+          str_replace:
+              template: ${VF_NAME}_sf_04
+              params:
+                ${VF_NAME}: {get_param: vnf_name}
+      image: { get_param: qvpc_image_sf }
       flavor: { get_param: flavor }
       networks:
         - port: {get_resource: qvpc_sf_04_port_int}
@@ -363,10 +394,15 @@ resources:
     properties:
         network: {get_param: network_service4}
 
-  qvpc-di-05-sf:
+  qvpc_sf_05:
     type: OS::Nova::Server
     properties:
-      image: { get_param: image_sf }
+      name:
+          str_replace:
+              template: ${VF_NAME}_sf_05
+              params:
+                ${VF_NAME}: {get_param: vnf_name}
+      image: { get_param: qvpc_image_sf }
       flavor: { get_param: flavor }
       networks:
         - port: {get_resource: qvpc_sf_05_port_int}
@@ -410,10 +446,15 @@ resources:
     properties:
         network: {get_param: network_service4}
 
-  qvpc-di-06-sf:
+  qvpc_sf_06:
     type: OS::Nova::Server
     properties:
-      image: { get_param: image_sf }
+      name:
+          str_replace:
+              template: ${VF_NAME}_sf_06
+              params:
+                ${VF_NAME}: {get_param: vnf_name}
+      image: { get_param: qvpc_image_sf }
       flavor: { get_param: flavor }
       networks:
         - port: {get_resource: qvpc_sf_06_port_int}
@@ -438,10 +479,10 @@ resources:
 outputs:
   CF1_networks:
     description: The networks of the deployed CF-1
-    value: { get_attr: [qvpc-di-01-cf, networks] }
+    value: { get_attr: [qvpc_cf_01, networks] }
   CF2_networks_2:
     description: The networks of the deployed CF-2
-    value: { get_attr: [qvpc-di-02-cf, networks] }
+    value: { get_attr: [qvpc_cf_02, networks] }
   port_1_int:
     description: The port of the deployed server 1, di-internal
     value: { get_attr: [qvpc_cf_01_port_int, mac_address] }
