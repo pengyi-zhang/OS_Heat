@@ -59,6 +59,13 @@ parameters:
     constraints:
       - custom_constraint: glance.image
 
+  network_public:
+    type: string
+    description: Network ID or Network Name of public network
+    default: public
+    constraints:
+      - custom_constraint: neutron.network
+
   network_di_mgmt:
     type: string
     description: Network ID or Network Name of net to use for CF management
@@ -132,6 +139,19 @@ parameters:
     default: "CARDSLOT=$CARD_SLOT\nCARDTYPE=$CARD_TYPE\nUUID=\n"
 
 resources:
+  #Resource for VIP
+  qvpc_vip_port:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_mgmt}
+        fixed_ips:
+          - ip_address: {get_param: qvpc_vip_addr}
+  qvpc_vip_floating_ip:
+      type: OS::Neutron::FloatingIP
+      properties:
+        floating_network: {get_param: network_public}
+        port_id: {get_resource: qvpc_vip_port}
+
   #Resoure fpr CF-1
   qvpc_cf_01_port_int:
     type: OS::Neutron::Port
@@ -477,6 +497,10 @@ resources:
       availability_zone: {get_param: availability_zone}
 
 outputs:
+  qvpc_floating_ip:
+    description: Floating IP of qvpc-di VIP
+    value: { get_attr: [qvpc_vip_floating_ip, floating_ip_address]}
+
   CF1_networks:
     description: The networks of the deployed CF-1
     value: { get_attr: [qvpc_cf_01, networks] }
