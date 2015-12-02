@@ -1,0 +1,523 @@
+#
+# This is a hello world HOT template just defining a single compute
+# server.
+#
+heat_template_version: 2013-05-23
+
+description: Hot template that defines basic QvPC-DI VM setup including 2 CF and 4 SF
+
+parameter_groups:
+- label: images
+  description: CF and SF image in qvpc-di
+  parameters:
+  - qvpc_image_cf
+  - qvpc_image_sf
+
+- label: networks
+  description: network configuration for DI
+  parameters:
+  - network_di_mgmt
+  - network_di_internal
+  - network_public
+  - network_service1
+  - network_service2
+  - network_service3
+  - network_service4
+
+#- label: subnets
+#  description: subnet configuration for floating ip
+#  parameters:
+#  - subnet_id_di_mgmt
+
+- label: other_params
+  description: other parameters
+  parameters:
+  - flavor
+  - availability_zone
+
+parameters:
+  flavor:
+    type: string
+    description: Flavor for the server to be created
+    default: m1.large
+
+  availability_zone:
+    type: string
+    description: Availability_zone for the server to be created
+    default: nova
+
+  qvpc_image_cf:
+    type: string
+    label: CF image file in glance
+    description: Image ID or image name to use for the server
+    constraints:
+      - custom_constraint: glance.image
+  qvpc_image_sf:
+    type: string
+    label: SF image file in glance
+    description: Image ID or image name to use for the server
+    constraints:
+      - custom_constraint: glance.image
+
+  network_public:
+    type: string
+    description: Network ID or Network Name of public network
+    default: public
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_di_mgmt:
+    type: string
+    description: Network ID or Network Name of net to use for CF management
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_di_internal:
+    type: string
+    description: Network ID or Network Name of net to use for QVPC-DI
+                 network
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service1:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service2:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service3:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service4:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  #subnet_id_di_mgmt:
+  #  type: string
+  #  description: Subnet ID of DI-mgmt interface connected to router
+
+  vnf_name:
+    type: string
+    description: Unique name for this VF instance
+    default: qvpc_di
+  vnf_id:
+    type: string
+    description: Unique ID for this VF instance
+    default: 0
+
+resources:
+  #Resource for VIP
+  qvpc_vip_port:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_mgmt}
+        #fixed_ips:
+        #  - subnet_id: {get_param: subnet_id_di_mgmt}
+  qvpc_vip_floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+        floating_network: {get_param: network_public}
+        port_id: {get_resource: qvpc_vip_port}
+  
+  #Resoure fpr CF-1
+  qvpc_cf_01_port_int:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_internal}
+  qvpc_cf_01_port_mgmt:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_mgmt}
+
+  qvpc_cf_01:
+    type: OS::Nova::Server
+    properties:
+      name:
+          str_replace:
+              template: ${VF_NAME}_cf_01
+              params:
+                ${VF_NAME}: {get_param: vnf_name}
+      image: { get_param: qvpc_image_cf }
+      flavor: { get_param: flavor }
+      networks:
+        - port: {get_resource: qvpc_cf_01_port_int}
+        - port: {get_resource: qvpc_cf_01_port_mgmt}
+      config_drive: True
+      personality: 
+        "staros_param.cfg":
+            str_replace:
+                template: |
+                    CARDSLOT=$CARD_NUMBER
+                    CARDTYPE=$CARD_TYPE
+                    UUID=$UUID
+                params:
+                    $CARD_NUMBER: 1
+                    $CARD_TYPE: CFC
+                    $UUID: 0
+        "staros_config.txt":
+            str_replace:
+                template: |
+                    config
+                        cli hidden
+                        tech-support test-commands password boxer
+                        system hostname $VF_NAME-cf-$SLOT_CARD_NUMBER
+                        context local
+                            administrator admin password cisco123 ftp
+                                interface LOCAL1
+                                    ip address $CF_VIP_ADDR 255.255.255.0
+                            #exit
+                            ip route 0.0.0.0 0.0.0.0 $CF_VIP_GATEWAY LOCAL1
+                            ssh generate key
+                            server sshd
+                                subsystem sftp
+                            #exit
+                            server telnetd
+                            server ftpd
+                        #exit
+                        port ethernet 1/1
+                        bind interface LOCAL1 local
+                        no shutdown
+                        #exit
+                        snmp community public read-only
+                    end    
+                params:
+                    $VF_NAME: {get_param: vnf_name}
+                    $SLOT_CARD_NUMBER: 1
+                    $CF_VIP_ADDR: {get_attr: [qvpc_vip_port, fixed_ips, 0, ip_address]}
+                    $CF_VIP_GATEWAY: { get_attr: [qvpc_vip_port, subnets, 0, gateway_ip] }
+      availability_zone: {get_param: availability_zone}
+
+  #Resoure for CF-2
+  qvpc_cf_02_port_int:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_internal}
+  qvpc_cf_02_port_mgmt:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_mgmt}
+
+  qvpc_cf_02:
+    type: OS::Nova::Server
+    properties:
+      name:
+          str_replace:
+              template: ${VF_NAME}_cf_02
+              params:
+                ${VF_NAME}: {get_param: vnf_name}
+      image: { get_param: qvpc_image_cf }
+      flavor: { get_param: flavor }
+      networks:
+        - port: {get_resource: qvpc_cf_02_port_int}
+        - port: {get_resource: qvpc_cf_02_port_mgmt}
+      config_drive: True
+      personality: 
+        "staros_param.cfg":
+            str_replace:
+                template: |
+                    CARDSLOT=$CARD_NUMBER
+                    CARDTYPE=$CARD_TYPE
+                    UUID=$UUID
+                params:
+                    $CARD_NUMBER: 2
+                    $CARD_TYPE: CFC
+                    $UUID: 0
+        "staros_config.txt":
+            str_replace:
+                template: |
+                    config
+                        cli hidden
+                        tech-support test-commands password boxer
+                        system hostname $VF_NAME-cf-$SLOT_CARD_NUMBER
+                        context local
+                            administrator admin password cisco123 ftp
+                                interface LOCAL1
+                                    ip address $CF_VIP_ADDR 255.255.255.0
+                            #exit
+                            ip route 0.0.0.0 0.0.0.0 $CF_VIP_GATEWAY LOCAL1
+                            ssh generate key
+                            server sshd
+                                subsystem sftp
+                            #exit
+                            server telnetd
+                            server ftpd
+                        #exit
+                        port ethernet 1/1
+                        bind interface LOCAL1 local
+                        no shutdown
+                        #exit
+                        snmp community public read-only
+                    end    
+                params:
+                    $VF_NAME: {get_param: vnf_name}
+                    $SLOT_CARD_NUMBER: 2
+                    $CF_VIP_ADDR: {get_attr: [qvpc_vip_port, fixed_ips, 0, ip_address]}
+                    $CF_VIP_GATEWAY: { get_attr: [qvpc_vip_port, subnets, 0, gateway_ip] }
+      availability_zone: {get_param: availability_zone}
+
+  #Resoure for SF-3
+  qvpc_sf_03_port_int:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_internal}
+  qvpc_sf_03_port_svc_01:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service1}
+  qvpc_sf_03_port_svc_02:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service2}
+  qvpc_sf_03_port_svc_03:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service3}
+  qvpc_sf_03_port_svc_04:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service4}
+
+  qvpc_sf_03:
+    type: OS::Nova::Server
+    properties:
+      name:
+          str_replace:
+              template: ${VF_NAME}_sf_03
+              params:
+                ${VF_NAME}: {get_param: vnf_name}
+      image: { get_param: qvpc_image_sf }
+      flavor: { get_param: flavor }
+      networks:
+        - port: {get_resource: qvpc_sf_03_port_int}
+        - port: {get_resource: qvpc_sf_03_port_svc_01}
+        - port: {get_resource: qvpc_sf_03_port_svc_02}
+        - port: {get_resource: qvpc_sf_03_port_svc_03}
+        - port: {get_resource: qvpc_sf_03_port_svc_04}
+      config_drive: True
+      personality:
+        "staros_param.cfg":
+            str_replace:
+                template: |
+                    CARDSLOT=$CARD_NUMBER
+                    CARDTYPE=$CARD_TYPE
+                    UUID=$UUID
+                params:
+                    $CARD_NUMBER: 3
+                    $CARD_TYPE: SFC
+                    $UUID: 0
+      availability_zone: {get_param: availability_zone}
+
+ #Resoure for SF-4
+  qvpc_sf_04_port_int:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_internal}
+  qvpc_sf_04_port_svc_01:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service1}
+  qvpc_sf_04_port_svc_02:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service2}
+  qvpc_sf_04_port_svc_03:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service3}
+  qvpc_sf_04_port_svc_04:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service4}
+
+  qvpc_sf_04:
+    type: OS::Nova::Server
+    properties:
+      name:
+          str_replace:
+              template: ${VF_NAME}_sf_04
+              params:
+                ${VF_NAME}: {get_param: vnf_name}
+      image: { get_param: qvpc_image_sf }
+      flavor: { get_param: flavor }
+      networks:
+        - port: {get_resource: qvpc_sf_04_port_int}
+        - port: {get_resource: qvpc_sf_04_port_svc_01}
+        - port: {get_resource: qvpc_sf_04_port_svc_02}
+        - port: {get_resource: qvpc_sf_04_port_svc_03}
+        - port: {get_resource: qvpc_sf_04_port_svc_04}
+      config_drive: True
+      personality:
+        "staros_param.cfg":
+            str_replace:
+                template: |
+                    CARDSLOT=$CARD_NUMBER
+                    CARDTYPE=$CARD_TYPE
+                    UUID=$UUID
+                params:
+                    $CARD_NUMBER: 4
+                    $CARD_TYPE: SFC
+                    $UUID: 0
+      availability_zone: {get_param: availability_zone}
+
+ #Resoure for SF-5
+  qvpc_sf_05_port_int:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_internal}
+  qvpc_sf_05_port_svc_01:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service1}
+  qvpc_sf_05_port_svc_02:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service2}
+  qvpc_sf_05_port_svc_03:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service3}
+  qvpc_sf_05_port_svc_04:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service4}
+
+  qvpc_sf_05:
+    type: OS::Nova::Server
+    properties:
+      name:
+          str_replace:
+              template: ${VF_NAME}_sf_05
+              params:
+                ${VF_NAME}: {get_param: vnf_name}
+      image: { get_param: qvpc_image_sf }
+      flavor: { get_param: flavor }
+      networks:
+        - port: {get_resource: qvpc_sf_05_port_int}
+        - port: {get_resource: qvpc_sf_05_port_svc_01}
+        - port: {get_resource: qvpc_sf_05_port_svc_02}
+        - port: {get_resource: qvpc_sf_05_port_svc_03}
+        - port: {get_resource: qvpc_sf_05_port_svc_04}
+      config_drive: True
+      personality:
+        "staros_param.cfg":
+            str_replace:
+                template: |
+                    CARDSLOT=$CARD_NUMBER
+                    CARDTYPE=$CARD_TYPE
+                    UUID=$UUID
+                params:
+                    $CARD_NUMBER: 5
+                    $CARD_TYPE: SFC
+                    $UUID: 0
+      availability_zone: {get_param: availability_zone}
+
+  #Resoure for SF-6
+  qvpc_sf_06_port_int:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_internal}
+  qvpc_sf_06_port_svc_01:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service1}
+  qvpc_sf_06_port_svc_02:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service2}
+  qvpc_sf_06_port_svc_03:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service3}
+  qvpc_sf_06_port_svc_04:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service4}
+
+  qvpc_sf_06:
+    type: OS::Nova::Server
+    properties:
+      name:
+          str_replace:
+              template: ${VF_NAME}_sf_06
+              params:
+                ${VF_NAME}: {get_param: vnf_name}
+      image: { get_param: qvpc_image_sf }
+      flavor: { get_param: flavor }
+      networks:
+        - port: {get_resource: qvpc_sf_06_port_int}
+        - port: {get_resource: qvpc_sf_06_port_svc_01}
+        - port: {get_resource: qvpc_sf_06_port_svc_02}
+        - port: {get_resource: qvpc_sf_06_port_svc_03}
+        - port: {get_resource: qvpc_sf_06_port_svc_04}
+      config_drive: True
+      personality:
+        "staros_param.cfg":
+            str_replace:
+                template: |
+                    CARDSLOT=$CARD_NUMBER
+                    CARDTYPE=$CARD_TYPE
+                    UUID=$UUID
+                params:
+                    $CARD_NUMBER: 6
+                    $CARD_TYPE: SFC
+                    $UUID: 0
+      availability_zone: {get_param: availability_zone}
+
+outputs:
+  qvpc_floating_ip:
+    description: Floating IP of qvpc-di VIP
+    value: { get_attr: [qvpc_vip_floating_ip, floating_ip_address]}
+  qvpc_virtual_ip:
+    description: Virtual IP of qvpc-di
+    value: {get_attr: [qvpc_vip_port, fixed_ips, 0, ip_address]}
+  CF1_networks:
+    description: The networks of the deployed CF-1
+    value: { get_attr: [qvpc_cf_01, networks] }
+  CF2_networks_2:
+    description: The networks of the deployed CF-2
+    value: { get_attr: [qvpc_cf_02, networks] }
+  port_1_int:
+    description: The port of the deployed server 1, di-internal
+    value: { get_attr: [qvpc_cf_01_port_int, mac_address] }
+  port_1_mgmt:
+    description: The port of the deployed server 2, di-internal
+    value: { get_attr: [qvpc_cf_01_port_mgmt, mac_address] }
+  port_2_int:
+    description: The port of the deployed server 2, cf-mgmt
+    value: { get_attr: [qvpc_cf_02_port_int, mac_address] }
+  port_2_mgmt:
+    description: The port of the deployed server 2, cf-mgmt
+    value: { get_attr: [qvpc_cf_02_port_mgmt, mac_address] }
+
+  port_3_int:
+    description: The port of the deployed server 3, di-internal
+    value: { get_attr: [qvpc_sf_03_port_int, mac_address] }
+  port_3_svc1:
+    description: The port of the deployed server 3, service1
+    value: { get_attr: [qvpc_sf_03_port_svc_01, mac_address] }
+  port_3_svc2:
+    description: The port of the deployed server 3, service2
+    value: { get_attr: [qvpc_sf_03_port_svc_02, mac_address] }
+  port_3_svc3:
+    description: The port of the deployed server 3, service3
+    value: { get_attr: [qvpc_sf_03_port_svc_03, mac_address] }
+  port_3_svc4:
+    description: The port of the deployed server 3, service4
+    value: { get_attr: [qvpc_sf_03_port_svc_04, mac_address] }
