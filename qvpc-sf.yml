@@ -1,0 +1,187 @@
+#
+# This is a hello world HOT template just defining a single compute
+# server.
+#
+heat_template_version: 2013-05-23
+
+description: Hot template that defines QvPC-DI SF cards
+
+parameter_groups:
+- label: images
+  description: CF and SF image in qvpc-di
+  parameters:
+  - qvpc_image_sf
+
+- label: networks
+  description: network configuration for DI
+  parameters:
+  - network_di_internal
+  - network_service1
+  - network_service2
+  - network_service3
+  - network_service4
+
+- label: other_params
+  description: other parameters
+  parameters:
+  - flavor
+  - availability_zone
+  - slot_number
+
+parameters:
+  slot_number:
+    type: string
+    description: Slot number of the SF card to be created
+
+  flavor:
+    type: string
+    description: Flavor for the server to be created
+    default: m1.large
+
+  availability_zone:
+    type: string
+    description: Availability_zone for the server to be created
+    default: nova
+
+  qvpc_image_cf:
+    type: string
+    label: CF image file in glance
+    description: Image ID or image name to use for the server
+    constraints:
+      - custom_constraint: glance.image
+  qvpc_image_sf:
+    type: string
+    label: SF image file in glance
+    description: Image ID or image name to use for the server
+    constraints:
+      - custom_constraint: glance.image
+
+  network_public:
+    type: string
+    description: Network ID or Network Name of public network
+    default: public
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_di_mgmt:
+    type: string
+    description: Network ID or Network Name of net to use for CF management
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_di_internal:
+    type: string
+    description: Network ID or Network Name of net to use for QVPC-DI
+                 network
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service1:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service2:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service3:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service4:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  vnf_name:
+    type: string
+    description: Unique name for this VF instance
+    default: qvpc_di
+  vnf_id:
+    type: string
+    description: Unique ID for this VF instance
+    default: 0
+
+resources:
+  #Resoure for SF
+  qvpc_sf_port_int:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_di_internal}
+  qvpc_sf_port_svc_01:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service1}
+  qvpc_sf_port_svc_02:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service2}
+  qvpc_sf_port_svc_03:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service3}
+  qvpc_sf_port_svc_04:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service4}
+
+  qvpc_sf:
+    type: OS::Nova::Server
+    properties:
+      name:
+          str_replace:
+              template: ${VF_NAME}_sf_${CARD_NUMBER}
+              params:
+                ${CARD_NUMBER}: {get_param: slot_number}
+                ${VF_NAME}: {get_param: vnf_name}
+      image: { get_param: qvpc_image_sf }
+      flavor: { get_param: flavor }
+      networks:
+        - port: {get_resource: qvpc_sf_port_int}
+        - port: {get_resource: qvpc_sf_port_svc_01}
+        - port: {get_resource: qvpc_sf_port_svc_02}
+        - port: {get_resource: qvpc_sf_port_svc_03}
+        - port: {get_resource: qvpc_sf_port_svc_04}
+      config_drive: True
+      personality:
+        "staros_param.cfg":
+            str_replace:
+                template: |
+                    CARDSLOT=$CARD_NUMBER
+                    CARDTYPE=$CARD_TYPE
+                    UUID=$UUID
+                params:
+                    $CARD_NUMBER: {get_param: slot_number}
+                    $CARD_TYPE: SFC
+                    $UUID: 0
+      availability_zone: {get_param: availability_zone}
+
+outputs:
+  port_int:
+    description: The port of the deployed server, di-internal
+    value: { get_attr: [qvpc_sf_port_int, mac_address] }
+  port_svc1:
+    description: The port of the deployed server, service1
+    value: { get_attr: [qvpc_sf_port_svc_01, mac_address] }
+  port_svc2:
+    description: The port of the deployed server, service2
+    value: { get_attr: [qvpc_sf_port_svc_02, mac_address] }
+  port_svc3:
+    description: The port of the deployed server, service3
+    value: { get_attr: [qvpc_sf_port_svc_03, mac_address] }
+  port_svc4:
+    description: The port of the deployed server, service4
+    value: { get_attr: [qvpc_sf_port_svc_04, mac_address] }
