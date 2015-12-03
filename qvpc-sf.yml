@@ -20,6 +20,11 @@ parameter_groups:
   - network_service2
   - network_service3
   - network_service4
+  - network_service5
+  - network_service6
+  - network_service7
+  - network_service8
+
 
 - label: other_params
   description: other parameters
@@ -32,6 +37,7 @@ parameters:
   slot_number:
     type: string
     description: Slot number of the SF card to be created
+    default: 0
 
   flavor:
     type: string
@@ -47,12 +53,15 @@ parameters:
     type: string
     label: CF image file in glance
     description: Image ID or image name to use for the server
+    default: cisco_qvpc_cf
     constraints:
       - custom_constraint: glance.image
+
   qvpc_image_sf:
     type: string
     label: SF image file in glance
     description: Image ID or image name to use for the server
+    default: cisco_qvpc_sf
     constraints:
       - custom_constraint: glance.image
 
@@ -106,6 +115,34 @@ parameters:
     constraints:
       - custom_constraint: neutron.network
 
+  network_service5:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service6:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service7:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service8:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+ 
   vnf_name:
     type: string
     description: Unique name for this VF instance
@@ -137,6 +174,14 @@ resources:
     type: OS::Neutron::Port
     properties:
         network: {get_param: network_service4}
+  qvpc_sf_port_svc_05:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service5}
+  qvpc_sf_port_svc_06:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service6}
 
   qvpc_sf:
     type: OS::Nova::Server
@@ -155,6 +200,8 @@ resources:
         - port: {get_resource: qvpc_sf_port_svc_02}
         - port: {get_resource: qvpc_sf_port_svc_03}
         - port: {get_resource: qvpc_sf_port_svc_04}
+        - port: {get_resource: qvpc_sf_port_svc_05}
+        - port: {get_resource: qvpc_sf_port_svc_06}
       config_drive: True
       personality:
         "staros_param.cfg":
