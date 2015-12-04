@@ -109,9 +109,33 @@ parameters:
     constraints:
       - custom_constraint: neutron.network
 
-  #subnet_id_di_mgmt:
-  #  type: string
-  #  description: Subnet ID of DI-mgmt interface connected to router
+  network_service5:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service6:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service7:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service8:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
 
   vnf_name:
     type: string
