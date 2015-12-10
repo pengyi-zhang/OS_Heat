@@ -29,7 +29,7 @@ parameter_groups:
 - label: other_params
   description: other parameters
   parameters:
-  - flavor
+  - flavor_SF
   - availability_zone
   - slot_number
 
@@ -39,9 +39,14 @@ parameters:
     description: Slot number of the SF card to be created
     default: 0
 
-  flavor:
+  flavor_CF:
     type: string
-    description: Flavor for the server to be created
+    description: Flavor for the CF to be created
+    default: m1.large
+
+  flavor_SF:
+    type: string
+    description: Flavor for the SF to be created
     default: m1.large
 
   availability_zone:
