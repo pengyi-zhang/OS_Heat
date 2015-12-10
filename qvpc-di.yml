@@ -185,7 +185,7 @@ resources:
               params:
                 ${VF_NAME}: {get_param: vnf_name}
       image: { get_param: qvpc_image_cf }
-      flavor: { get_param: flavor }
+      flavor: { get_param: flavor_cf }
       networks:
         - port: {get_resource: qvpc_cf_01_port_int}
         - port: {get_resource: qvpc_cf_01_port_mgmt}
@@ -253,7 +253,7 @@ resources:
               params:
                 ${VF_NAME}: {get_param: vnf_name}
       image: { get_param: qvpc_image_cf }
-      flavor: { get_param: flavor }
+      flavor: { get_param: flavor_cf }
       networks:
         - port: {get_resource: qvpc_cf_02_port_int}
         - port: {get_resource: qvpc_cf_02_port_mgmt}
@@ -333,7 +333,7 @@ resources:
               params:
                 ${VF_NAME}: {get_param: vnf_name}
       image: { get_param: qvpc_image_sf }
-      flavor: { get_param: flavor }
+      flavor: { get_param: flavor_sf }
       networks:
         - port: {get_resource: qvpc_sf_03_port_int}
         - port: {get_resource: qvpc_sf_03_port_svc_01}
@@ -385,7 +385,7 @@ resources:
               params:
                 ${VF_NAME}: {get_param: vnf_name}
       image: { get_param: qvpc_image_sf }
-      flavor: { get_param: flavor }
+      flavor: { get_param: flavor_sf }
       networks:
         - port: {get_resource: qvpc_sf_04_port_int}
         - port: {get_resource: qvpc_sf_04_port_svc_01}
@@ -437,7 +437,7 @@ resources:
               params:
                 ${VF_NAME}: {get_param: vnf_name}
       image: { get_param: qvpc_image_sf }
-      flavor: { get_param: flavor }
+      flavor: { get_param: flavor_sf }
       networks:
         - port: {get_resource: qvpc_sf_05_port_int}
         - port: {get_resource: qvpc_sf_05_port_svc_01}
@@ -489,7 +489,7 @@ resources:
               params:
                 ${VF_NAME}: {get_param: vnf_name}
       image: { get_param: qvpc_image_sf }
-      flavor: { get_param: flavor }
+      flavor: { get_param: flavor_sf }
       networks:
         - port: {get_resource: qvpc_sf_06_port_int}
         - port: {get_resource: qvpc_sf_06_port_svc_01}

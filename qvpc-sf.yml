@@ -198,7 +198,7 @@ resources:
                 ${CARD_NUMBER}: {get_param: slot_number}
                 ${VF_NAME}: {get_param: vnf_name}
       image: { get_param: qvpc_image_sf }
-      flavor: { get_param: flavor }
+      flavor: { get_param: flavor_sf }
       networks:
         - port: {get_resource: qvpc_sf_port_int}
         - port: {get_resource: qvpc_sf_port_svc_01}
