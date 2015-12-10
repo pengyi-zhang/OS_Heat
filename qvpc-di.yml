@@ -32,17 +32,17 @@ parameter_groups:
 - label: other_params
   description: other parameters
   parameters:
-  - flavor_CF
-  - flavor_SF
+  - flavor_cf
+  - flavor_sf
   - availability_zone
 
 parameters:
-  flavor_CF:
+  flavor_cf:
     type: string
     description: Flavor for the CF to be created
     default: m1.large
 
-  flavor_SF:
+  flavor_sf:
     type: string
     description: Flavor for the SF to be created
     default: m1.large
