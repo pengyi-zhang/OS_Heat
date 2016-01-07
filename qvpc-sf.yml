@@ -24,7 +24,10 @@ parameter_groups:
   - network_service6
   - network_service7
   - network_service8
-
+  - network_service9
+  - network_service10
+  - network_service11
+  - network_service12
 
 - label: other_params
   description: other parameters
@@ -147,6 +150,34 @@ parameters:
     default: private
     constraints:
       - custom_constraint: neutron.network
+
+  network_service9:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service10:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service11:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
+
+  network_service12:
+    type: string
+    description: Network ID or Network Name of net to use for SF service ports
+    default: private
+    constraints:
+      - custom_constraint: neutron.network
  
   vnf_name:
     type: string
@@ -187,6 +218,31 @@ resources:
     type: OS::Neutron::Port
     properties:
         network: {get_param: network_service6}
+  qvpc_sf_port_svc_07:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service7}
+  qvpc_sf_port_svc_08:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service8}
+  qvpc_sf_port_svc_09:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service9}
+  qvpc_sf_port_svc_10:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service10}
+  qvpc_sf_port_svc_11:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service11}
+  qvpc_sf_port_svc_12:
+    type: OS::Neutron::Port
+    properties:
+        network: {get_param: network_service12}
+
 
   qvpc_sf:
     type: OS::Nova::Server
@@ -207,6 +263,12 @@ resources:
         - port: {get_resource: qvpc_sf_port_svc_04}
         - port: {get_resource: qvpc_sf_port_svc_05}
         - port: {get_resource: qvpc_sf_port_svc_06}
+        - port: {get_resource: qvpc_sf_port_svc_07}
+        - port: {get_resource: qvpc_sf_port_svc_08}
+        - port: {get_resource: qvpc_sf_port_svc_09}
+        - port: {get_resource: qvpc_sf_port_svc_10}
+        - port: {get_resource: qvpc_sf_port_svc_11}
+        - port: {get_resource: qvpc_sf_port_svc_12}
       config_drive: True
       personality:
         "staros_param.cfg":
