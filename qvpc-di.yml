@@ -88,32 +88,24 @@ parameters:
       - custom_constraint: neutron.network
 
   network_service1:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
     default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service2:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
     default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service3:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
     default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service4:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
     default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service5:
     type: string
@@ -310,19 +302,19 @@ resources:
   qvpc_sf_03_port_svc_01:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service1}
+        network: {get_param: [network_service1,sf3]}
   qvpc_sf_03_port_svc_02:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service2}
+        network: {get_param: [network_service2,sf3]}
   qvpc_sf_03_port_svc_03:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service3}
+        network: {get_param: [network_service3,sf3]}
   qvpc_sf_03_port_svc_04:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service4}
+        network: {get_param: [network_service4,sf3]}
 
   qvpc_sf_03:
     type: OS::Nova::Server
@@ -362,19 +354,19 @@ resources:
   qvpc_sf_04_port_svc_01:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service1}
+        network: {get_param: [network_service1,sf4]}
   qvpc_sf_04_port_svc_02:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service2}
+        network: {get_param: [network_service2,sf4]}
   qvpc_sf_04_port_svc_03:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service3}
+        network: {get_param: [network_service3,sf4]}
   qvpc_sf_04_port_svc_04:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service4}
+        network: {get_param: [network_service4,sf4]}
 
   qvpc_sf_04:
     type: OS::Nova::Server
@@ -414,19 +406,19 @@ resources:
   qvpc_sf_05_port_svc_01:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service1}
+        network: {get_param: [network_service1,sf5]}
   qvpc_sf_05_port_svc_02:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service2}
+        network: {get_param: [network_service2,sf5]}
   qvpc_sf_05_port_svc_03:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service3}
+        network: {get_param: [network_service3,sf5]}
   qvpc_sf_05_port_svc_04:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service4}
+        network: {get_param: [network_service4,sf5]}
 
   qvpc_sf_05:
     type: OS::Nova::Server
@@ -466,19 +458,19 @@ resources:
   qvpc_sf_06_port_svc_01:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service1}
+        network: {get_param: [network_service1,sf6]}
   qvpc_sf_06_port_svc_02:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service2}
+        network: {get_param: [network_service2,sf6]}
   qvpc_sf_06_port_svc_03:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service3}
+        network: {get_param: [network_service3,sf6]}
   qvpc_sf_06_port_svc_04:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service4}
+        network: {get_param: [network_service4,sf6]}
 
   qvpc_sf_06:
     type: OS::Nova::Server
