@@ -38,7 +38,7 @@ parameter_groups:
 
 parameters:
   slot_number:
-    type: string
+    type: number
     description: Slot number of the SF card to be created
     default: 0
 
@@ -96,88 +96,52 @@ parameters:
       - custom_constraint: neutron.network
 
   network_service1:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service2:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service3:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service4:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service5:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service6:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service7:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service8:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service9:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service10:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service11:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service12:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
  
   vnf_name:
     type: string
@@ -197,53 +161,134 @@ resources:
   qvpc_sf_port_svc_01:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service1}
+        network: 
+            get_param: 
+                - network_service1
+                - str_replace:
+                      template: sf${CARD_NUMBER}
+                      params: 
+                          ${CARD_NUMBER}: {get_param: slot_number}
+  
   qvpc_sf_port_svc_02:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service2}
+        network: 
+            get_param: 
+                - network_service2
+                - str_replace:
+                      template: sf${CARD_NUMBER}
+                      params: 
+                          ${CARD_NUMBER}: {get_param: slot_number}
+
   qvpc_sf_port_svc_03:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service3}
+        network: 
+            get_param: 
+                - network_service3
+                - str_replace:
+                      template: sf${CARD_NUMBER}
+                      params: 
+                          ${CARD_NUMBER}: {get_param: slot_number}
+
   qvpc_sf_port_svc_04:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service4}
+        network: 
+            get_param: 
+                - network_service4
+                - str_replace:
+                      template: sf${CARD_NUMBER}
+                      params: 
+                          ${CARD_NUMBER}: {get_param: slot_number}
+
   qvpc_sf_port_svc_05:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service5}
+        network: 
+            get_param: 
+                - network_service5
+                - str_replace:
+                      template: sf${CARD_NUMBER}
+                      params: 
+                          ${CARD_NUMBER}: {get_param: slot_number}
+
   qvpc_sf_port_svc_06:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service6}
+        network: 
+            get_param: 
+                - network_service6
+                - str_replace:
+                      template: sf${CARD_NUMBER}
+                      params: 
+                          ${CARD_NUMBER}: {get_param: slot_number}
+
   qvpc_sf_port_svc_07:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service7}
+        network: 
+            get_param: 
+                - network_service7
+                - str_replace:
+                      template: sf${CARD_NUMBER}
+                      params: 
+                          ${CARD_NUMBER}: {get_param: slot_number}
+
   qvpc_sf_port_svc_08:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service8}
+        network: 
+            get_param: 
+                - network_service8
+                - str_replace:
+                      template: sf${CARD_NUMBER}
+                      params: 
+                          ${CARD_NUMBER}: {get_param: slot_number}
+
   qvpc_sf_port_svc_09:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service9}
+        network: 
+            get_param: 
+                - network_service9
+                - str_replace:
+                      template: sf${CARD_NUMBER}
+                      params: 
+                          ${CARD_NUMBER}: {get_param: slot_number}
+
   qvpc_sf_port_svc_10:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service10}
+        network: 
+            get_param: 
+                - network_service10
+                - str_replace:
+                      template: sf${CARD_NUMBER}
+                      params: 
+                          ${CARD_NUMBER}: {get_param: slot_number}
   qvpc_sf_port_svc_11:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service11}
+        network: 
+            get_param: 
+                - network_service11
+                - str_replace:
+                      template: sf${CARD_NUMBER}
+                      params: 
+                          ${CARD_NUMBER}: {get_param: slot_number}
+        
   qvpc_sf_port_svc_12:
     type: OS::Neutron::Port
     properties:
-        network: {get_param: network_service12}
-
-
+        network: 
+            get_param: 
+                - network_service12
+                - str_replace:
+                      template: sf${CARD_NUMBER}
+                      params: 
+                          ${CARD_NUMBER}: {get_param: slot_number}
+ 
   qvpc_sf:
     type: OS::Nova::Server
     properties:

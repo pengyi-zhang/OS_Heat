@@ -90,79 +90,51 @@ parameters:
   network_service1:
     type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
 
   network_service2:
     type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
 
   network_service3:
     type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
 
   network_service4:
     type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
 
   network_service5:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service6:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service7:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service8:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service9:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service10:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service11:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
 
   network_service12:
-    type: string
+    type: json
     description: Network ID or Network Name of net to use for SF service ports
-    default: private
-    constraints:
-      - custom_constraint: neutron.network
- 
+
   vnf_name:
     type: string
     description: Unique name for this VF instance
