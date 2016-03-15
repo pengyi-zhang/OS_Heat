@@ -145,6 +145,12 @@ parameters:
     default: 0
 
 resources:
+  qvpc_svrgrp: 
+    type: OS::Nova::ServerGroup 
+    properties: 
+        policies: 
+          - anti-affinity
+ 
   #Resource for VIP
   qvpc_vip_port:
     type: OS::Neutron::Port
@@ -167,6 +173,19 @@ resources:
     type: OS::Neutron::Port
     properties:
         network: {get_param: network_di_mgmt}
+  qvpc_cf01_vol_01:
+    type: OS::Cinder::Volume
+    properties:
+        size: 4
+        image: { get_param: qvpc_image_cf }
+        volume_type: iscsi
+        availability_zone: { get_param: availability_zone }
+  qvpc_cf01_vol_02:
+    type: OS::Cinder::Volume
+    properties:
+        size: 16
+        volume_type: iscsi
+        availability_zone: { get_param: availability_zone }
 
   qvpc_cf_01:
     type: OS::Nova::Server
@@ -176,11 +195,18 @@ resources:
               template: ${VF_NAME}_cf_01
               params:
                 ${VF_NAME}: {get_param: vnf_name}
-      image: { get_param: qvpc_image_cf }
       flavor: { get_param: flavor_cf }
       networks:
         - port: {get_resource: qvpc_cf_01_port_int}
         - port: {get_resource: qvpc_cf_01_port_mgmt}
+      block_device_mapping_v2:
+        - volume_id: {get_resource: qvpc_cf01_vol_01}
+        - disk_bus: scsi
+        - delete_on_termination: true 
+      block_device_mapping_v2:
+        - volume_id: {get_resource: qvpc_cf01_vol_02}
+        - disk_bus: scsi
+        - delete_on_termination: true
       config_drive: True
       personality: 
         "staros_param.cfg":
@@ -235,7 +261,20 @@ resources:
     type: OS::Neutron::Port
     properties:
         network: {get_param: network_di_mgmt}
-
+  qvpc_cf02_vol_01:
+    type: OS::Cinder::Volume
+    properties:
+        size: 4
+        image: { get_param: qvpc_image_cf }
+        volume_type: iscsi
+        availability_zone: { get_param: availability_zone }
+  qvpc_cf02_vol_02:
+    type: OS::Cinder::Volume
+    properties:
+        size: 16
+        volume_type: iscsi
+        availability_zone: { get_param: availability_zone }
+ 
   qvpc_cf_02:
     type: OS::Nova::Server
     properties:
@@ -244,11 +283,18 @@ resources:
               template: ${VF_NAME}_cf_02
               params:
                 ${VF_NAME}: {get_param: vnf_name}
-      image: { get_param: qvpc_image_cf }
       flavor: { get_param: flavor_cf }
       networks:
         - port: {get_resource: qvpc_cf_02_port_int}
         - port: {get_resource: qvpc_cf_02_port_mgmt}
+      block_device_mapping_v2:
+        - volume_id: {get_resource: qvpc_cf02_vol_01}
+        - disk_bus: scsi
+        - delete_on_termination: true 
+      block_device_mapping_v2:
+        - volume_id: {get_resource: qvpc_cf02_vol_02}
+        - disk_bus: scsi
+        - delete_on_termination: true
       config_drive: True
       personality: 
         "staros_param.cfg":

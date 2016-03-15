@@ -37,10 +37,11 @@ resources:
     properties:
       allocation_pools:
       - end: 172.10.0.254
-        start: 172.10.0.2
+        start: 172.10.0.1
       cidr: 172.10.0.0/18
+      gateway_ip: null
       dns_nameservers: []
-      enable_dhcp: true
+      enable_dhcp: false
       host_routes: []
       ip_version: 4
       name: di_internal
